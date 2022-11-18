@@ -9,6 +9,9 @@ services:
       - "9200"
     ports:
       - "9200:9200"
+    volumes:
+      - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/elasticsearch.yml
+      - es-data:/usr/share/elasticsearch/data
     networks:
       - efk-setup-network
 
@@ -25,10 +28,19 @@ services:
     image: grafana/grafana:7.5.7
     ports:
       - 3000:3000
-    restart: unless-stopped
+    #restart: unless-stopped
     volumes:
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - grafana-data:/var/lib/grafana
+    networks:
+      - efk-setup-network
+
+  app:
+    image: back-gammon-app-00
+    links:
+      - "elasticsearch"
+    ports:
+      - "8080:8080"
     networks:
       - efk-setup-network
 
@@ -38,3 +50,4 @@ networks:
 
 volumes:
   grafana-data:
+  es-data:

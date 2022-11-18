@@ -6,6 +6,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.util.Date;
+import java.util.HashMap;
 
 @Document(indexName = "entryindex")
 public class Entry {
@@ -16,8 +17,19 @@ public class Entry {
     @Field(type = FieldType.Date, name = "@timestamp")
     private Date timestamp;
 
-    @Field(type = FieldType.Text, name = "name")
-    private String name;
+    @Field(type = FieldType.Text, name = "game")
+    private String game;
+
+    @Field(type = FieldType.Auto, name = "points")
+    private HashMap points;
+
+    public HashMap getPoints() {
+        return points;
+    }
+
+    public void setPoints(HashMap points) {
+        this.points = points;
+    }
 
     public String getId() {
         return id;
@@ -35,11 +47,11 @@ public class Entry {
         this.timestamp = timestamp;
     }
 
-    public String getName() {
-        return name;
+    public String getGame() {
+        return game;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setGame(String game) {
+        this.game = game;
     }
 }
