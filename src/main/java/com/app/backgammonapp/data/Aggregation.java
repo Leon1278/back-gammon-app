@@ -8,11 +8,11 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.util.Date;
 import java.util.HashMap;
 
-@Document(indexName = "entryindex")
-public class Entry {
+@Document(indexName = "metadata")
+public class Aggregation {
 
     @Id
-    private String id;
+    private Integer id;
 
     @Field(type = FieldType.Date, name = "@timestamp")
     private Date timestamp;
@@ -20,15 +20,15 @@ public class Entry {
     @Field(type = FieldType.Text, name = "game")
     private String game;
 
-    @Field(type = FieldType.Auto, name = "points")
-    private HashMap<String, Float> points;
+    @Field(type = FieldType.Auto, name = "players")
+    private HashMap<String, Float> playerCount;
 
-    public HashMap<String, Float> getPoints() {
-        return points;
+    public int getId() {
+        return id;
     }
 
-    public void setPoints(HashMap<String, Float> points) {
-        this.points = points;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public Date getTimestamp() {
@@ -39,6 +39,14 @@ public class Entry {
         this.timestamp = timestamp;
     }
 
+    public HashMap<String, Float> getPlayerCount() {
+        return playerCount;
+    }
+
+    public void setPlayerCount(HashMap<String, Float> playerCount) {
+        this.playerCount = playerCount;
+    }
+
     public String getGame() {
         return game;
     }
@@ -46,8 +54,4 @@ public class Entry {
     public void setGame(String game) {
         this.game = game;
     }
-
-    public String getId() {return id; }
-
-    public void setId(String id) {this.id = id; }
 }
