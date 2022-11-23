@@ -3,17 +3,18 @@ package com.app.backgammonapp.controller;
 import com.app.backgammonapp.data.Entry;
 import com.app.backgammonapp.data.Aggregation;
 import com.app.backgammonapp.data.MetaDataId;
-import com.app.backgammonapp.repository.EntryService;
-import com.app.backgammonapp.repository.MetaDataIdService;
-import com.app.backgammonapp.repository.AggregationService;
+import com.app.backgammonapp.service.EntryService;
+import com.app.backgammonapp.service.MetaDataIdService;
+import com.app.backgammonapp.service.AggregationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @RestController
 public class EntryController {
@@ -27,64 +28,54 @@ public class EntryController {
     @Autowired
     private MetaDataIdService metaDataIdService;
 
+    Logger logger = Logger.getLogger(EntryController.class.getName());
+
     @PostMapping(path= "/", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Object> addEntry(@RequestBody Entry entry)
     {
-        entryService.createEntryIndex(entry);
+        logger.setLevel(Level.ALL);
         try {
-            // get metaDataId
+            entryService.saveToEntryIndex(entry);
             Optional<MetaDataId> metaDataId = metaDataIdService.getMetaDataId(entry.getGame());
             if (metaDataId.isPresent()) {
+                logger.info("Found metaDataId data for game " + entry.getGame());
                 MetaDataId metaDataIdObj = metaDataId.get();
 
-                // get metadata
                 int id = metaDataIdObj.getMetaDataId();
-                Optional<Aggregation> metaData = aggregationService.getAggregationData(id, entry.getGame());
-                Aggregation aggregationObj = metaData.get();
+                Optional<Aggregation> aggregation = aggregationService.getAggregationData(id, entry.getGame());
+                if (aggregation.isPresent()) {
+                    logger.info("Found aggregation data for game " + entry.getGame());
 
-                // increase id and set TS
-                id = id + 1;
-                metaDataIdObj.setMetaDataId(id);
-                aggregationObj.setId(id);
-                aggregationObj.setTimestamp(entry.getTimestamp());
+                    Aggregation aggregationObj = aggregation.get();
 
-                // map points to playerCount
-                HashMap<String, Float> playerCount = aggregationObj.getPlayerCount();
-                HashMap<String, Float> points = entry.getPoints();
-                for (String key : points.keySet()) {
-                    if (playerCount.containsKey(key)) {
-                        Float oldValue = playerCount.get(key);
-                        Float newValue = oldValue + points.get(key);
-                        playerCount.put(key, newValue);
-                    } else {
-                        playerCount.put(key, points.get(key));
-                    }
+                    id++;
+                    metaDataIdObj.setMetaDataId(id);
+                    aggregationObj.setId(id);
+                    aggregationObj.setTimestamp(entry.getTimestamp());
+
+                    aggregationService.aggregate(aggregationObj, entry);
+                    logger.info("New playerCount: " + aggregationObj.getPlayerCount().toString());
+
+                    metaDataIdService.saveToMetaDataIdIndex(metaDataIdObj);
+                    aggregationService.saveToAggregationIndex(aggregationObj);
+                } else {
+                    logger.info("A problem occured while fetching metaDataId or aggregation data for game " + entry.getGame());
                 }
-
-                // save documents
-                metaDataIdService.createMetaDataIdIndex(metaDataIdObj);
-                aggregationService.createAggregationIndex(aggregationObj);
-
             } else {
-                MetaDataId metaDataIdObj = new MetaDataId();
-                Aggregation aggregationObj = new Aggregation();
+                logger.info("No entries found for game " + entry.getGame());
+                logger.info("New game will be created");
 
-                metaDataIdObj.setId(entry.getGame());
-                metaDataIdObj.setMetaDataId(0);
+                MetaDataId metaDataIdObj = metaDataIdService.initialize(entry);
+                Aggregation aggregationObj = aggregationService.initalize(entry);
 
-                aggregationObj.setId(0);
-                aggregationObj.setGame(entry.getGame());
-                aggregationObj.setTimestamp(entry.getTimestamp());
+                metaDataIdService.saveToMetaDataIdIndex(metaDataIdObj);
+                aggregationService.saveToAggregationIndex(aggregationObj);
 
-                HashMap<String, Float> points = entry.getPoints();
-                HashMap<String, Float> playerCount = points;
-                aggregationObj.setPlayerCount(playerCount);
-
-                metaDataIdService.createMetaDataIdIndex(metaDataIdObj);
-                aggregationService.createAggregationIndex(aggregationObj);
+                logger.info("Created game " + entry.getGame() + " with player count: " + aggregationObj.getPlayerCount().toString());
             }
-        } catch(Exception e) {
-    }
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
+        }
         return null;
     }
 }

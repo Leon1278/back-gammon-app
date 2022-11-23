@@ -1,10 +1,7 @@
-package com.app.backgammonapp.repository;
+package com.app.backgammonapp.service;
 
 import com.app.backgammonapp.data.Entry;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.core.CountRequest;
-import org.elasticsearch.client.core.CountResponse;
-import org.elasticsearch.index.query.QueryBuilders;
+import com.app.backgammonapp.repository.EntryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +21,7 @@ public class EntryService {
         entryRepository.saveAll(entries);
     }
 
-    public void createEntryIndex(final Entry entry) {
+    public void saveToEntryIndex(final Entry entry) {
         setId(entry);
         entryRepository.save(entry);
     }

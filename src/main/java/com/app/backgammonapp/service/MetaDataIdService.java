@@ -1,6 +1,8 @@
-package com.app.backgammonapp.repository;
+package com.app.backgammonapp.service;
 
+import com.app.backgammonapp.data.Entry;
 import com.app.backgammonapp.data.MetaDataId;
+import com.app.backgammonapp.repository.MetaDataIdRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +16,19 @@ public class MetaDataIdService {
 
     public MetaDataIdService(){}
 
-    public void createMetaDataIdIndex(final MetaDataId metaDataId) {
+    public void saveToMetaDataIdIndex(final MetaDataId metaDataId) {
         metaDataIdRepository.save(metaDataId);
     }
 
     public Optional<MetaDataId> getMetaDataId(String id) {
         Optional<MetaDataId> metaDataId = metaDataIdRepository.findById(id);
         return metaDataId;
+    }
+
+    public MetaDataId initialize(Entry entry) {
+        MetaDataId metaDataIdObj = new MetaDataId();
+        metaDataIdObj.setId(entry.getGame());
+        metaDataIdObj.setMetaDataId(0);
+        return metaDataIdObj;
     }
 }
