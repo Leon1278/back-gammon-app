@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Service
 public class AggregationService {
@@ -18,10 +16,7 @@ public class AggregationService {
     @Autowired
     private AggregationRepository aggregationRepository;
 
-    Logger logger = Logger.getLogger(EntryController.class.getName());
-
     public AggregationService() {
-        logger.setLevel(Level.ALL);
     }
 
     public void saveToAggregationIndex(final Aggregation aggregation) {
@@ -29,6 +24,7 @@ public class AggregationService {
     }
 
     public Optional<Aggregation> getAggregationData(int id, String game) {
+
         Optional<Aggregation> aggregation = aggregationRepository.findByIdAndGame(id, game);
         return aggregation;
     }

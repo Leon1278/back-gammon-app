@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.yaml.snakeyaml.events.Event;
 
 import java.util.Optional;
 import java.util.logging.Level;
@@ -31,7 +33,7 @@ public class EntryController {
     Logger logger = Logger.getLogger(EntryController.class.getName());
 
     @PostMapping(path= "/", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Object> addEntry(@RequestBody Entry entry)
+    public void addEntry(@RequestBody Entry entry)
     {
         logger.setLevel(Level.ALL);
         try {
@@ -76,6 +78,11 @@ public class EntryController {
         } catch (Exception e) {
             logger.severe(e.getMessage());
         }
-        return null;
+    }
+
+    @PostMapping(path= "/delete", produces = "application/json")
+    public void deleteEntry(String id) {
+        entryService.deleteEntry(id);
+        logger.info("Deleted entry with ID: " + id);
     }
 }
