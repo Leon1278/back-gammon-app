@@ -22,7 +22,7 @@ public class ElasticsearchClientConfig extends
         final ClientConfiguration clientConfiguration =
                 ClientConfiguration
                         .builder()
-                        .connectedTo("elasticsearch:9200") // need to be changed when deployed as docker container
+                        .connectedTo("localhost:9200") // need to be changed when deployed as docker container
                         .build();
 
         return RestClients.create(clientConfiguration).rest();

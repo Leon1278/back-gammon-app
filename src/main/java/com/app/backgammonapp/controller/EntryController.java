@@ -7,12 +7,9 @@ import com.app.backgammonapp.service.EntryService;
 import com.app.backgammonapp.service.MetaDataIdService;
 import com.app.backgammonapp.service.AggregationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.yaml.snakeyaml.events.Event;
 
 import java.util.Optional;
 import java.util.logging.Level;
@@ -32,7 +29,7 @@ public class EntryController {
 
     Logger logger = Logger.getLogger(EntryController.class.getName());
 
-    @PostMapping(path= "/", consumes = "application/json", produces = "application/json")
+    @PostMapping(path= "/insert", consumes = "application/json", produces = "application/json")
     public void addEntry(@RequestBody Entry entry)
     {
         logger.setLevel(Level.ALL);
